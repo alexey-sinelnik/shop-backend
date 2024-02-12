@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import {ConfigModule} from "@nestjs/config";
-import {TypegooseModule} from "@m8a/nestjs-typegoose";
-import configuration from "../../configuration";
+import { ConfigModule } from '@nestjs/config';
+import configuration from '../../configuration';
+import { MongooseModule } from '@nestjs/mongoose';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver } from '@nestjs/apollo';
+import { UsersModule } from '../users/users.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -11,9 +13,13 @@ import configuration from "../../configuration";
       isGlobal: true,
       load: [configuration],
     }),
-    TypegooseModule.forRoot(process.env.DB_URI)
-],
-  controllers: [AppController],
-  providers: [AppService],
+    GraphQLModule.forRoot({
+      autoSchemaFile: true,
+      driver: ApolloDriver,
+    }),
+    MongooseModule.forRoot(process.env.DB_URI),
+    UsersModule,
+    AuthModule,
+  ],
 })
 export class AppModule {}
