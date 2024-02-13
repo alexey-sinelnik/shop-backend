@@ -3,11 +3,11 @@ import { AuthService } from "./auth.service";
 import { UsersService } from "../users/users.service";
 import { User } from "../users/entities/user.entity";
 
-describe("AuthService", () => {
+describe("AuthService", (): void => {
     let authService: AuthService;
     let usersService: UsersService;
 
-    beforeEach(async () => {
+    beforeEach(async (): Promise<void> => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 AuthService,
@@ -24,11 +24,11 @@ describe("AuthService", () => {
         usersService = module.get<UsersService>(UsersService);
     });
 
-    it("should be defined", () => {
+    it("should be defined", (): void => {
         expect(authService).toBeDefined();
     });
 
-    it("should call the create method of the usersService", async () => {
+    it("should call the create method of the usersService", async (): Promise<void> => {
         const createUserInput = {
             password: "Password",
             email: `test${Date.now()}@test.com`,
@@ -44,7 +44,7 @@ describe("AuthService", () => {
 
         (usersService.create as jest.Mock).mockResolvedValue(createdUser);
 
-        const result = await authService.register(createUserInput);
+        const result: User = await authService.register(createUserInput);
 
         expect(usersService.create).toHaveBeenCalledWith(createUserInput);
         expect(result).toBe(createdUser);
