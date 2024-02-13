@@ -37,8 +37,8 @@ describe("UsersService", () => {
         const createUserInput = {
             password: "Password",
             email: `test${Date.now()}@test.com`,
-            firstName: "Alex",
-            lastName: "Sinelnik",
+            firstName: "John",
+            lastName: "Doe",
             country: "Ukraine",
             city: "Lviv",
             address: "Address",
