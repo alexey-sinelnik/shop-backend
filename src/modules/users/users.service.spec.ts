@@ -3,7 +3,7 @@ import { getModelToken } from "@nestjs/mongoose";
 import { UsersService } from "./users.service";
 import { User } from "./entities/user.entity";
 
-describe("UsersService", () => {
+describe("UsersService", (): void => {
     let usersService: UsersService;
 
     const mockUserModel = {
@@ -15,7 +15,7 @@ describe("UsersService", () => {
         create: jest.fn()
     };
 
-    beforeEach(async () => {
+    beforeEach(async (): Promise<void> => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 UsersService,
@@ -29,11 +29,11 @@ describe("UsersService", () => {
         usersService = module.get<UsersService>(UsersService);
     });
 
-    it("should be defined", () => {
+    it("should be defined", (): void => {
         expect(usersService).toBeDefined();
     });
 
-    it("should create a user", async () => {
+    it("should create a user", async (): Promise<void> => {
         const createUserInput = {
             password: "Password",
             email: `test${Date.now()}@test.com`,
@@ -45,16 +45,12 @@ describe("UsersService", () => {
             street: "Street",
             postalCode: "06234"
         };
-        const createdUser = {
-            /* mock created user */
-        };
+        const createdUser: User = {} as User;
         mockUserModel.findOne.mockResolvedValue(null);
         mockUserModel.create.mockResolvedValue(createdUser);
 
-        const result = await usersService.create(createUserInput);
+        const result: User = await usersService.create(createUserInput);
 
         expect(result).toEqual(createdUser);
     });
-
-    // Add more test cases for other methods as needed
 });
