@@ -9,9 +9,7 @@ import { UpdateUserInput } from "./dto/update-user.input";
 
 @Injectable()
 export class UsersService {
-    constructor(
-        @InjectModel(User.name) private readonly userModel: Model<User>
-    ) {}
+    constructor(@InjectModel(User.name) private readonly userModel: Model<User>) {}
 
     async create(dto: CreateUserInput): Promise<User> {
         const user: User = await this.userModel.findOne({ email: dto.email });
@@ -33,11 +31,8 @@ export class UsersService {
         return this.userModel.findOne({ email }).lean();
     }
 
-    async update(id: string, updateUserInput: UpdateUserInput): Promise<User> {
-        return this.userModel.findOneAndUpdate(
-            { email: updateUserInput.email },
-            updateUserInput
-        );
+    update(id: string, updateUserInput: UpdateUserInput): Promise<User> {
+        return this.userModel.findOneAndUpdate({ _id: id }, updateUserInput);
     }
 
     async remove(id: string): Promise<boolean> {
