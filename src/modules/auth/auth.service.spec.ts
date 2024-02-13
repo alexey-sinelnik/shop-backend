@@ -1,20 +1,52 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { AuthService } from "./auth.service";
-import { UsersModule } from "../users/users.module";
+import { UsersService } from "../users/users.service";
+import { User } from "../users/entities/user.entity";
 
 describe("AuthService", () => {
-    let service: AuthService;
+    let authService: AuthService;
+    let usersService: UsersService;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            imports: [UsersModule],
-            providers: [AuthService]
+            providers: [
+                AuthService,
+                {
+                    provide: UsersService,
+                    useValue: {
+                        create: jest.fn()
+                    }
+                }
+            ]
         }).compile();
 
-        service = module.get<AuthService>(AuthService);
+        authService = module.get<AuthService>(AuthService);
+        usersService = module.get<UsersService>(UsersService);
     });
 
     it("should be defined", () => {
-        expect(service).toBeDefined();
+        expect(authService).toBeDefined();
+    });
+
+    it("should call the create method of the usersService", async () => {
+        const createUserInput = {
+            password: "Password",
+            email: `test${Date.now()}@test.com`,
+            firstName: "Alex",
+            lastName: "Sinelnik",
+            country: "Ukraine",
+            city: "Lviv",
+            address: "Address",
+            street: "Street",
+            postalCode: "06234"
+        };
+        const createdUser: User = {} as User;
+
+        (usersService.create as jest.Mock).mockResolvedValue(createdUser);
+
+        const result = await authService.register(createUserInput);
+
+        expect(usersService.create).toHaveBeenCalledWith(createUserInput);
+        expect(result).toBe(createdUser);
     });
 });
