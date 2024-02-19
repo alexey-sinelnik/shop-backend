@@ -22,8 +22,8 @@ export class ProductsResolver {
     }
 
     @Query(() => [Product], { name: "products" })
-    findByPopulate(@Args("input") findByPopulateInput: FindByCategoryInput): Promise<Product[]> {
-        return this.productsService.findByCategory(findByPopulateInput);
+    findByCategory(@Args("input") findByCategoryInput: FindByCategoryInput): Promise<Product[]> {
+        return this.productsService.findByCategory(findByCategoryInput);
     }
 
     @Query(() => Product, { name: "product" })

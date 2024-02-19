@@ -15,16 +15,10 @@ export class AuthService {
     }
 
     async login(loginInput: LoginUserInput): Promise<User> {
-        const user: User = await this.userService.findOneByEmail(
-            loginInput.email
-        );
+        const user: User = await this.userService.findOneByEmail(loginInput.email);
         if (!user) throw new BadRequestException(AppErrors.USER_NOT_EXIST);
-        const comparePassword: boolean = await bcrypt.compare(
-            loginInput.password,
-            user.password
-        );
-        if (!comparePassword)
-            throw new BadRequestException(AppErrors.WRONG_DATA);
+        const comparePassword: boolean = await bcrypt.compare(loginInput.password, user.password);
+        if (!comparePassword) throw new BadRequestException(AppErrors.WRONG_DATA);
         delete user.password;
         return user;
     }
