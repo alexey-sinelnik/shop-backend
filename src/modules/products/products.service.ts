@@ -1,11 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { Product } from "./entities/product.entity";
 import { RemoveProductInput } from "./dto/remove-roduct.input";
 import { FindOneProductInput } from "./dto/find-product.input";
 import { CreateProductInput } from "./dto/create-product.input";
 import { UpdateProductInput } from "./dto/update-product.input";
+import { FindByCategoryInput } from "./dto/find-by-category.input";
+import { Product } from "./entities/product.entity";
 
 @Injectable()
 export class ProductsService {
@@ -17,6 +18,10 @@ export class ProductsService {
 
     findAll(): Promise<Product[]> {
         return this.productModel.find();
+    }
+
+    findByCategory(findByCategoryInput: FindByCategoryInput): Promise<Product[]> {
+        return this.productModel.find({ category: findByCategoryInput.category });
     }
 
     findOne(findOneProductInput: FindOneProductInput): Promise<Product> {
