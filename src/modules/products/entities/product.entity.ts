@@ -2,11 +2,17 @@ import { Field, ObjectType } from "@nestjs/graphql";
 import { now, Schema as ProductSchema } from "mongoose";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
+export type ProductDocument = Product & Document;
+
 @ObjectType()
 @Schema()
 export class Product {
     @Field()
     _id: string;
+
+    @Field()
+    @Prop({ type: ProductSchema.Types.ObjectId, ref: "Category" })
+    category: string;
 
     @Field(() => [String])
     @Prop()
@@ -58,12 +64,7 @@ export class Product {
 
     @Field()
     @Prop()
-    category: string;
-
-    @Field()
-    @Prop()
     brand: string;
 }
 
-export const ProductModel: ProductSchema<Product> =
-    SchemaFactory.createForClass(Product);
+export const ProductModel: ProductSchema<Product> = SchemaFactory.createForClass(Product);

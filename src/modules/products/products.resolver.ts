@@ -5,6 +5,7 @@ import { CreateProductInput } from "./dto/create-product.input";
 import { UpdateProductInput } from "./dto/update-product.input";
 import { RemoveProductInput } from "./dto/remove-roduct.input";
 import { FindOneProductInput } from "./dto/find-product.input";
+import { FindByCategoryInput } from "./dto/find-by-category.input";
 
 @Resolver(() => Product)
 export class ProductsResolver {
@@ -18,6 +19,11 @@ export class ProductsResolver {
     @Query(() => [Product], { name: "products" })
     findAll(): Promise<Product[]> {
         return this.productsService.findAll();
+    }
+
+    @Query(() => [Product], { name: "products" })
+    findByPopulate(@Args("input") findByPopulateInput: FindByCategoryInput): Promise<Product[]> {
+        return this.productsService.findByCategory(findByPopulateInput);
     }
 
     @Query(() => Product, { name: "product" })
