@@ -1,38 +1,44 @@
 import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import { RemoveProductInput } from "./dto/remove-roduct.input";
-import { FindOneProductInput } from "./dto/find-product.input";
-import { CreateProductInput } from "./dto/create-product.input";
-import { UpdateProductInput } from "./dto/update-product.input";
-import { FindByCategoryInput } from "./dto/find-by-category.input";
-import { Product } from "./entities/product.entity";
+import { RemoveProductDto } from "./dto/remove-roduct.input";
+import { CreateProductDto } from "./dto/create-product.dto";
+import { FindByCategoryDto } from "./dto/find-by-category.dto";
+import { PrismaService } from "../prisma/prisma.service";
+import { Product } from "@prisma/client";
+import { FindOneProductDto } from "./dto/find-product.input";
 
 @Injectable()
 export class ProductsService {
-    constructor(@InjectModel(Product.name) private readonly productModel: Model<Product>) {}
+    constructor(private prisma: PrismaService) {}
 
-    create(createProductInput: CreateProductInput): Promise<Product> {
-        return this.productModel.create(createProductInput);
+    create(createProductDto: CreateProductDto): Promise<Product> {
+        return this.prisma.product.create({
+            data: createProductDto
+        });
     }
 
     findAll(): Promise<Product[]> {
-        return this.productModel.find();
+        return this.prisma.product.findMany();
     }
 
-    findByCategory(findByCategoryInput: FindByCategoryInput): Promise<Product[]> {
-        return this.productModel.find({ category: findByCategoryInput.category });
+    findByCategory(findByCategoryDto: FindByCategoryDto): Promise<Product[]> {
+        return this.prisma.product.findMany({ where: { category: findByCategoryDto.category } });
     }
 
-    findOne(findOneProductInput: FindOneProductInput): Promise<Product> {
-        return this.productModel.findOne({ _id: findOneProductInput.id });
+    findOne(findOneProductDto: FindOneProductDto): Promise<Product> {
+        return this.prisma.product.findFirst({ where: { id: findOneProductDto.id } });
     }
 
-    update(id: string, updateProductInput: UpdateProductInput): Promise<Product> {
-        return this.productModel.findOneAndUpdate({ _id: id }, updateProductInput);
-    }
+    //
+    // update(id: string, updateProductInput: UpdateProductInput): Promise<Product> {
+    //     return this.prisma.product.update({
+    //         where: { id },
+    //         data: {
+    //             category: updateProductInput
+    //         }
+    //     });
+    // }
 
-    remove(removeProductInput: RemoveProductInput): Promise<Product> {
-        return this.productModel.findOneAndDelete({ _id: removeProductInput.id });
+    remove(removeProductDto: RemoveProductDto): Promise<Product> {
+        return this.prisma.product.delete({ where: { id: removeProductDto.id } });
     }
 }

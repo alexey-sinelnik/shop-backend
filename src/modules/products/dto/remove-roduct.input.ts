@@ -1,7 +1,6 @@
-import { Field, InputType } from "@nestjs/graphql";
+import { IsString } from "class-validator";
 
-@InputType()
-export class RemoveProductInput {
-    @Field()
+export class RemoveProductDto {
+    @IsString()
     id: string;
 }

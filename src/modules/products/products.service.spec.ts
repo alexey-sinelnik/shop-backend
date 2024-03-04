@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { getModelToken } from "@nestjs/mongoose";
 import { ProductsService } from "./products.service";
 import { Product } from "./entities/product.entity";
-import { CreateProductInput } from "./dto/create-product.input";
+import { CreateProductDto } from "./dto/create-product.dto";
 
 describe("ProductsService", () => {
     let productsService: ProductsService;
@@ -33,8 +33,8 @@ describe("ProductsService", () => {
     });
 
     it("should create a product", async (): Promise<void> => {
-        const mockCreateProductInput: CreateProductInput = {} as Product;
-        const mockCreatedProduct: CreateProductInput = {} as Product;
+        const mockCreateProductInput: CreateProductDto = {} as Product;
+        const mockCreatedProduct: CreateProductDto = {} as Product;
         mockProductModel.create.mockReturnValue(mockCreatedProduct);
 
         const createdProduct: Product = await productsService.create(mockCreateProductInput);

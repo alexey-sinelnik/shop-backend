@@ -1,33 +1,47 @@
 import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import { CreateCategoryInput } from "./dto/create-category.input";
-import { UpdateCategoryInput } from "./dto/update-category.input";
-import { Category } from "./entities/category.entity";
+import { UpdateCategoryDto } from "./dto/update-category.dto";
+import { PrismaService } from "../prisma/prisma.service";
+import { Categories } from "@prisma/client";
+import { CreateCategoryDto } from "./dto/create-category.dto";
+import { PropertiesService } from "../properties/properties.service";
 
 @Injectable()
 export class CategoriesService {
     constructor(
-        @InjectModel(Category.name) private readonly categoryModel: typeof Model<Category>
+        private readonly prisma: PrismaService,
+        private readonly propertiesService: PropertiesService
     ) {}
 
-    create(createCategoryInput: CreateCategoryInput): Promise<Category> {
-        return this.categoryModel.create(createCategoryInput);
+    async create(createCategoryDto: CreateCategoryDto): Promise<Categories> {
+        const category = await this.prisma.categories.create({
+            data: {
+                name: createCategoryDto.name
+            }
+        });
+        createCategoryDto.properties.map(async property => {
+            await this.propertiesService.create(property, category.id);
+        });
+        return category;
     }
 
-    findAll(): Promise<Category[]> {
-        return this.categoryModel.find();
+    findAll(): Promise<any> {
+        return this.prisma.categories.findMany();
     }
 
-    findOne(id: string): Promise<Category> {
-        return this.categoryModel.findOne({ _id: id });
+    findOne(id: string): Promise<Categories> {
+        return this.prisma.categories.findFirst({ where: { id } });
     }
 
-    update(id: string, updateCategoryInput: UpdateCategoryInput): Promise<Category> {
-        return this.categoryModel.findOneAndUpdate({ _id: id }, updateCategoryInput);
+    update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<Categories> {
+        return this.prisma.categories.update({
+            where: { id },
+            data: {
+                name: updateCategoryDto.name
+            }
+        });
     }
 
-    remove(id: string): Promise<Category> {
-        return this.categoryModel.findOneAndDelete({ _id: id });
+    remove(id: string): Promise<Categories> {
+        return this.prisma.categories.delete({ where: { id } });
     }
 }

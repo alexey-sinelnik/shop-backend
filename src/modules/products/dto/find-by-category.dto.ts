@@ -1,6 +1,6 @@
 import { IsString } from "class-validator";
 
-export class UpdateUserInput {
+export class FindByCategoryDto {
     @IsString()
-    id: string;
+    category: string;
 }

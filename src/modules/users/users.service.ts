@@ -1,41 +1,36 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
 import * as bcrypt from "bcrypt";
-import { Model } from "mongoose";
-import { User } from "./entities/user.entity";
-import { CreateUserInput } from "./dto/create-user.input";
+import { PrismaService } from "../prisma/prisma.service";
+import { Prisma, User } from "@prisma/client";
 import { AppErrors } from "../../common/errors";
-import { UpdateUserInput } from "./dto/update-user.input";
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { LoginUserDto } from "../auth/dto/login-user.dto";
+import { CreateUserDto } from "./dto/create-user.dto";
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectModel(User.name) private readonly userModel: Model<User>) {}
+    constructor(private readonly prisma: PrismaService) {}
 
-    async create(dto: CreateUserInput): Promise<User> {
-        const user: User = await this.userModel.findOne({ email: dto.email });
+    async create(createUserDto: CreateUserDto): Promise<User> {
+        const user: User = await this.prisma.user.findUnique({
+            where: { email: createUserDto.email }
+        });
         if (user) throw new BadRequestException(AppErrors.USER_EXIST);
         const salt: string = await bcrypt.genSalt();
-        dto.password = await bcrypt.hash(dto.password, salt);
-        return this.userModel.create(dto);
+        createUserDto.password = await bcrypt.hash(createUserDto.password, salt);
+        return this.prisma.user.create({
+            data: createUserDto
+        });
     }
 
     findAll(): Promise<User[]> {
-        return this.userModel.find().lean();
+        return this.prisma.user.findMany();
     }
 
     findOneById(id: string): Promise<User> {
-        return this.userModel.findById(id).lean();
+        return this.prisma.user.findFirst({ where: { id } });
     }
 
     findOneByEmail(email: string): Promise<User> {
-        return this.userModel.findOne({ email }).lean();
-    }
-
-    update(id: string, updateUserInput: UpdateUserInput): Promise<User> {
-        return this.userModel.findOneAndUpdate({ _id: id }, updateUserInput);
-    }
-
-    async remove(id: string): Promise<boolean> {
-        return this.userModel.findByIdAndDelete(id);
+        return this.prisma.user.findUnique({ where: { email } });
     }
 }
