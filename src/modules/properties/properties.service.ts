@@ -8,7 +8,6 @@ export class PropertiesService {
     constructor(private readonly prisma: PrismaService) {}
 
     create(createPropertyDto: CreatePropertyDto, categoryId: string) {
-        console.log(Array.isArray(createPropertyDto.values));
         return this.prisma.properties.create({
             data: {
                 name: createPropertyDto.name,

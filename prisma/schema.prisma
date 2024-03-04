@@ -39,9 +39,12 @@ model Product {
 }
 
 model Categories {
-  id         String       @id @default(uuid())
-  name       String
-  properties Properties[]
+  id               String       @id @default(uuid())
+  name             String
+  properties       Properties[]
+  parentCategory   Categories?  @relation("CategoriesHierarchy", fields: [parentCategoryId], references: [id])
+  nestedCategories Categories[] @relation("CategoriesHierarchy")
+  parentCategoryId String?
 }
 
 model Properties {
