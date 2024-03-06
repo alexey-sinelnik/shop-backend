@@ -4,6 +4,9 @@ export class CreateCategoryDto {
     @IsString()
     name: string;
 
+    @IsString()
+    parent?: string;
+
     @IsNotEmpty()
     properties: PropertyType[];
 }

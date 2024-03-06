@@ -1,4 +1,5 @@
 import { IsBoolean, IsDate, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { Type } from "class-transformer";
 
 export class CreateProductDto {
     @IsNotEmpty()
@@ -17,7 +18,7 @@ export class CreateProductDto {
     dimensions: string;
 
     @IsNotEmpty()
-    colors: string[];
+    colors: ProductColors[];
 
     @IsString()
     description: string;
@@ -26,6 +27,7 @@ export class CreateProductDto {
     discount: number;
 
     @IsDate()
+    @Type(() => Date)
     expireDiscount: Date;
 
     @IsBoolean()
@@ -37,3 +39,16 @@ export class CreateProductDto {
     @IsString()
     brand: string;
 }
+
+export class ProductColors {
+    value: string;
+    label: string;
+    color: string;
+}
+
+export type ProductImages = {
+    id: string;
+    link: string;
+    createdAt: Date;
+    updatedAt: Date;
+};

@@ -21,21 +21,23 @@ model User {
 }
 
 model Product {
-  id             String   @id @default(uuid())
-  category       String
-  images         String[]
+  id             String          @id @default(uuid())
+  category       Categories      @relation(fields: [categoryId], references: [id])
+  categoryId     String
+  images         ProductImages[]
   title          String
   rating         Int
   price          Int
   dimensions     String
-  colors         String[]
+  colors         Colors[]
   description    String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @default(now())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @default(now())
   discount       Int
   expireDiscount DateTime
   newArrival     Boolean
   brand          String
+  productColors  ProductColors[]
 }
 
 model Categories {
@@ -45,6 +47,7 @@ model Categories {
   parentCategory   Categories?  @relation("CategoriesHierarchy", fields: [parentCategoryId], references: [id])
   nestedCategories Categories[] @relation("CategoriesHierarchy")
   parentCategoryId String?
+  products         Product[]
 }
 
 model Properties {
@@ -54,4 +57,31 @@ model Properties {
   uuid         String
   Categories   Categories? @relation(fields: [categoriesId], references: [id])
   categoriesId String?
+}
+
+model ProductColors {
+  id        String  @id @default(uuid())
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  color     Colors  @relation(fields: [colorsId], references: [id])
+  colorsId  String
+}
+
+model Colors {
+  id            String          @id @default(uuid())
+  value         String
+  label         String
+  color         String
+  Product       Product?        @relation(fields: [productId], references: [id])
+  productId     String?
+  ProductColors ProductColors[]
+}
+
+model ProductImages {
+  id        String   @id @default(uuid())
+  link      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  Product   Product? @relation(fields: [productId], references: [id])
+  productId String?
 }
