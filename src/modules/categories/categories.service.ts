@@ -15,7 +15,8 @@ export class CategoriesService {
     async create(createCategoryDto: CreateCategoryDto): Promise<Categories> {
         const category = await this.prisma.categories.create({
             data: {
-                name: createCategoryDto.name
+                name: createCategoryDto.name,
+                parentCategoryId: createCategoryDto.parent ? createCategoryDto.parent : null
             }
         });
         createCategoryDto.properties.map(async property => {
@@ -25,7 +26,15 @@ export class CategoriesService {
     }
 
     findAll(): Promise<any> {
-        return this.prisma.categories.findMany();
+        return this.prisma.categories.findMany({
+            select: {
+                id: true,
+                name: true,
+                properties: true,
+                parentCategory: true,
+                nestedCategories: true
+            }
+        });
     }
 
     findOne(id: string): Promise<Categories> {
