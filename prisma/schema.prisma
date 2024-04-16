@@ -95,3 +95,11 @@ model ProductImages {
   Product   Product? @relation(fields: [productId], references: [id])
   productId String?
 }
+
+model Cart {
+  id          String @id @default(uuid())
+  title       String
+  price       Int
+  quantity    Int
+  description String
+}
