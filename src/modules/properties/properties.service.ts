@@ -7,15 +7,34 @@ import { PrismaService } from "../prisma/prisma.service";
 export class PropertiesService {
     constructor(private readonly prisma: PrismaService) {}
 
-    create(createPropertyDto: CreatePropertyDto, categoryId: string) {
-        return this.prisma.properties.create({
-            data: {
-                name: createPropertyDto.name,
-                uuid: createPropertyDto.uuid,
-                values: [...createPropertyDto.values],
-                categoriesId: categoryId
-            }
+    async create(createPropertyDto: CreatePropertyDto, categoryId: string) {
+        const existProperty = await this.prisma.properties.findFirst({
+            where: { uuid: createPropertyDto.uuid }
         });
+        if (existProperty) {
+            await this.prisma.categoryProperties.create({
+                data: {
+                    categoriesId: categoryId,
+                    propertiesId: existProperty.id
+                }
+            });
+        } else {
+            const property = await this.prisma.properties.create({
+                data: {
+                    name: createPropertyDto.name,
+                    uuid: createPropertyDto.uuid,
+                    values: [...createPropertyDto.values],
+                    categoriesId: categoryId
+                }
+            });
+
+            await this.prisma.categoryProperties.create({
+                data: {
+                    categoriesId: categoryId,
+                    propertiesId: property.id
+                }
+            });
+        }
     }
 
     update(updatePropertyDto: UpdatePropertyDto) {

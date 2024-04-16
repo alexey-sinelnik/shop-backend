@@ -41,22 +41,32 @@ model Product {
 }
 
 model Categories {
-  id               String       @id @default(uuid())
-  name             String
-  properties       Properties[]
-  parentCategory   Categories?  @relation("CategoriesHierarchy", fields: [parentCategoryId], references: [id])
-  nestedCategories Categories[] @relation("CategoriesHierarchy")
-  parentCategoryId String?
-  products         Product[]
+  id                 String               @id @default(uuid())
+  name               String
+  categoryProperties CategoryProperties[]
+  parentCategory     Categories?          @relation("CategoriesHierarchy", fields: [parentCategoryId], references: [id])
+  nestedCategories   Categories[]         @relation("CategoriesHierarchy")
+  parentCategoryId   String?
+  products           Product[]
+  Properties         Properties[]
+}
+
+model CategoryProperties {
+  id           String      @id @default(uuid())
+  Categories   Categories? @relation(fields: [categoriesId], references: [id])
+  categoriesId String?
+  properties   Properties  @relation(fields: [propertiesId], references: [id])
+  propertiesId String
 }
 
 model Properties {
-  id           String      @id @default(uuid())
-  name         String
-  values       String[]
-  uuid         String
-  Categories   Categories? @relation(fields: [categoriesId], references: [id])
-  categoriesId String?
+  id                 String               @id @default(uuid())
+  name               String
+  values             String[]
+  uuid               String
+  categories         Categories?          @relation(fields: [categoriesId], references: [id])
+  categoriesId       String?
+  categoryProperties CategoryProperties[]
 }
 
 model ProductColors {
