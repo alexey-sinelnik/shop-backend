@@ -27,12 +27,12 @@ export class CategoriesService {
 
     findAll(): Promise<any> {
         return this.prisma.categories.findMany({
-            select: {
-                id: true,
-                name: true,
-                properties: true,
-                parentCategory: true,
-                nestedCategories: true
+            include: {
+                categoryProperties: {
+                    include: {
+                        properties: true
+                    }
+                }
             }
         });
     }
