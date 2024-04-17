@@ -1,29 +1,41 @@
 import { Injectable } from "@nestjs/common";
-import { CreateStripeDto } from "./dto/create-stripe.dto";
-import { UpdateStripeDto } from "./dto/update-stripe.dto";
-import Stripe from "stripe";
 import { ConfigService } from "@nestjs/config";
-import { Cart } from "../../common/types/stripe";
+import { PrismaService } from "../prisma/prisma.service";
+import Stripe from "stripe";
+import { CreateStripeTransactionInProgressDto } from "./dto/create-stripe-transaction-in-progress.dto";
+import { UpdateStripeDto } from "./dto/update-stripe.dto";
 
 @Injectable()
 export class StripeService {
     private stripe: Stripe;
 
-    constructor(private readonly configService: ConfigService) {
+    constructor(
+        private readonly configService: ConfigService,
+        private readonly prisma: PrismaService
+    ) {
         this.stripe = new Stripe(this.configService.get<string>("stripe_key"));
     }
 
-    create(createStripeDto: Cart) {
-        // const totalCost = createStripeDto.reduce(
-        //     (acc, item) => acc + item.price * item.quantity,
-        //     0
-        // );
-
-        return this.stripe.paymentIntents.create({
-            amount: 40 * 100,
-            currency: "USD",
+    async createTransaction(
+        createStripeTransactionDto: CreateStripeTransactionInProgressDto
+    ): Promise<Stripe.Response<Stripe.PaymentIntent>> {
+        const transactionInProcess = await this.stripe.paymentIntents.create({
+            amount: createStripeTransactionDto.amount,
+            currency: createStripeTransactionDto.currency,
             payment_method_types: ["card"]
         });
+
+        await this.prisma.transactionInProcess.create({
+            data: {
+                transactionId: transactionInProcess.id,
+                amount: createStripeTransactionDto.amount,
+                currency: createStripeTransactionDto.currency,
+                date: createStripeTransactionDto.date,
+                status: transactionInProcess.status
+            }
+        });
+
+        return transactionInProcess;
     }
 
     findAll() {

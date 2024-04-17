@@ -96,10 +96,21 @@ model ProductImages {
   productId String?
 }
 
-model Cart {
-  id          String @id @default(uuid())
-  title       String
-  price       Int
-  quantity    Int
-  description String
+model TransactionSuccess {
+  id            String   @id @default(uuid())
+  email         String
+  transactionId String
+  amount        Int
+  currency      String
+  date          DateTime
+  status        String
+}
+
+model TransactionInProcess {
+  id            String   @id @default(uuid())
+  transactionId String
+  amount        Int
+  currency      String
+  date          DateTime
+  status        String
 }
