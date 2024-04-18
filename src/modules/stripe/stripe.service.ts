@@ -1,9 +1,10 @@
 import { Injectable } from "@nestjs/common";
+import { Cron } from "@nestjs/schedule";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
 import Stripe from "stripe";
 import { CreateStripeTransactionInProgressDto } from "./dto/create-stripe-transaction-in-progress.dto";
-import { UpdateStripeDto } from "./dto/update-stripe.dto";
+import { TransactionInProcess } from "@prisma/client";
 
 @Injectable()
 export class StripeService {
@@ -16,7 +17,7 @@ export class StripeService {
         this.stripe = new Stripe(this.configService.get<string>("stripe_key"));
     }
 
-    async createTransaction(
+    async initTransaction(
         createStripeTransactionDto: CreateStripeTransactionInProgressDto
     ): Promise<Stripe.Response<Stripe.PaymentIntent>> {
         const transactionInProcess = await this.stripe.paymentIntents.create({
@@ -38,19 +39,20 @@ export class StripeService {
         return transactionInProcess;
     }
 
-    findAll() {
-        return `This action returns all stripe`;
-    }
+    @Cron("0 0 * * * *")
+    async removeExpiredTransaction() {
+        const transactions: TransactionInProcess[] =
+            await this.prisma.transactionInProcess.findMany();
 
-    findOne(id: number) {
-        return `This action returns a #${id} stripe`;
-    }
+        for (const transaction of transactions) {
+            const createTransactionDate: number = new Date(transaction.date).getTime();
+            const today: number = new Date(Date.now()).getTime();
+            const time: number = today - createTransactionDate;
 
-    update(id: number, updateStripeDto: UpdateStripeDto) {
-        return `This action updates a #${id} stripe`;
-    }
-
-    remove(id: number) {
-        return `This action removes a #${id} stripe`;
+            if (time > 3600000) {
+                await this.stripe.paymentIntents.cancel(transaction.transactionId);
+                await this.prisma.transactionInProcess.delete({ where: { id: transaction.id } });
+            }
+        }
     }
 }

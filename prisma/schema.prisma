@@ -99,7 +99,7 @@ model ProductImages {
 model TransactionSuccess {
   id            String   @id @default(uuid())
   email         String
-  transactionId String
+  transactionId String   @unique
   amount        Int
   currency      String
   date          DateTime
